@@ -71,8 +71,7 @@
         font-weight: 650;
       }
 
-      input:not([type="checkbox"]),
-      select,
+      input:not([type="checkbox"]):not([type="radio"]),
       textarea {
         width: 100%;
         border: 1px solid var(--line);
@@ -83,14 +82,9 @@
         outline: none;
       }
 
-      input:not([type="checkbox"]) {
+      input:not([type="checkbox"]):not([type="radio"]) {
         height: 36px;
         padding: 0 10px;
-      }
-
-      select {
-        min-height: 132px;
-        padding: 8px;
       }
 
       textarea {
@@ -99,8 +93,7 @@
         resize: vertical;
       }
 
-      input:not([type="checkbox"]):focus,
-      select:focus,
+      input:not([type="checkbox"]):not([type="radio"]):focus,
       textarea:focus {
         border-color: var(--primary);
         box-shadow: 0 0 0 3px rgba(0, 167, 106, 0.14);
@@ -240,6 +233,97 @@
         background: #fff0ed;
         color: var(--danger);
       }
+
+      .history-radiolist {
+        display: grid;
+        gap: 8px;
+        max-height: 220px;
+        overflow: auto;
+        padding: 8px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: #fff;
+      }
+
+      .history-radiolist.empty {
+        place-items: center;
+        min-height: 92px;
+        color: var(--muted);
+      }
+
+      .history-option {
+        display: grid;
+        grid-template-columns: 20px minmax(0, 1fr);
+        gap: 10px;
+        align-items: flex-start;
+        width: 100%;
+        padding: 10px;
+        border: 1px solid transparent;
+        border-radius: 7px;
+        background: transparent;
+        color: var(--text);
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .history-radio {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .history-option:hover {
+        background: #f4f7ef;
+      }
+
+      .history-option.selected {
+        border-color: rgba(0, 167, 106, 0.42);
+        background: #eef8f1;
+      }
+
+      .history-check {
+        display: grid;
+        place-items: center;
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+        border: 1.5px solid #aab4a5;
+        border-radius: 999px;
+        color: #fff;
+        font-size: 11px;
+        line-height: 1;
+      }
+
+      .history-option.selected .history-check {
+        border-color: var(--primary);
+        background: var(--primary);
+      }
+
+      .history-option.selected .history-check::after {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: #fff;
+      }
+
+      .history-title,
+      .history-meta {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .history-title {
+        font-weight: 750;
+      }
+
+      .history-meta {
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 12px;
+      }
     </style>
   </head>
   <body>
@@ -306,10 +390,8 @@
         <h2>历史回滚</h2>
         <p>读取 GitHub 上的历史 JSON，选择一版后重新写回 <b>tokens/current.json</b>，并创建一次 rollback commit。</p>
         <div class="field">
-          <label for="rollbackSelect">历史 JSON</label>
-          <select id="rollbackSelect" size="6" disabled>
-            <option>先点击“读取历史版本”</option>
-          </select>
+          <label>历史 JSON</label>
+          <div id="rollbackList" class="history-radiolist empty" role="radiogroup" aria-label="历史 JSON">先点击“读取历史版本”</div>
         </div>
         <div class="field">
           <label for="rollbackDescription">回滚说明</label>
@@ -337,6 +419,7 @@
       var activeRequestId = 0;
       var rollbackItems = [];
       var rollbackManifest = null;
+      var selectedRollbackIndex = null;
 
       function $(id) {
         return document.getElementById(id);
@@ -356,7 +439,10 @@
         $("loadHistory").disabled = isBusy;
         $("clearToken").disabled = isBusy;
         $("rememberToken").disabled = isBusy;
-        $("rollback").disabled = isBusy || $("rollbackSelect").disabled || !$("rollbackSelect").value;
+        $("rollback").disabled = isBusy || selectedRollbackIndex === null;
+        Array.prototype.forEach.call(document.querySelectorAll('input[name="rollbackHistory"]'), function (input) {
+          input.disabled = isBusy;
+        });
       }
 
       function fieldValue(id) {
@@ -637,6 +723,15 @@
         return source.changeDescription || item.label || item.file || "snapshot";
       }
 
+      function updateRollbackSelection() {
+        var checked = document.querySelector('input[name="rollbackHistory"]:checked');
+        selectedRollbackIndex = checked ? Number(checked.value) : null;
+        Array.prototype.forEach.call(document.querySelectorAll(".history-option"), function (option) {
+          option.classList.toggle("selected", checked && option.dataset.index === checked.value);
+        });
+        $("rollback").disabled = selectedRollbackIndex === null;
+      }
+
       function renderRollbackOptions(manifest) {
         rollbackItems = (manifest.history || [])
           .map(function (item, index) {
@@ -646,23 +741,41 @@
             return item.file && item.file.indexOf("tokens/history/") === 0;
           })
           .reverse();
+        selectedRollbackIndex = null;
 
         if (!rollbackItems.length) {
-          $("rollbackSelect").innerHTML = "<option>没有可回滚的历史 JSON</option>";
-          $("rollbackSelect").disabled = true;
+          $("rollbackList").className = "history-radiolist empty";
+          $("rollbackList").textContent = "没有可回滚的历史 JSON";
           $("rollback").disabled = true;
           return;
         }
 
-        $("rollbackSelect").innerHTML = rollbackItems
+        $("rollbackList").className = "history-radiolist";
+        $("rollbackList").innerHTML = rollbackItems
           .map(function (item, index) {
             var label = historyLabel(item);
-            var date = item.createdAt ? " / " + item.createdAt : "";
-            return '<option value="' + index + '">' + escapeHtml(label + date) + "</option>";
+            var date = item.createdAt || "";
+            return (
+              '<label class="history-option" data-index="' +
+              index +
+              '">' +
+              '<input class="history-radio" type="radio" name="rollbackHistory" value="' +
+              index +
+              '" />' +
+              '<span class="history-check" aria-hidden="true"></span>' +
+              '<span>' +
+              '<span class="history-title">' +
+              escapeHtml(label) +
+              "</span>" +
+              '<span class="history-meta">' +
+              escapeHtml(date || item.file) +
+              "</span>" +
+              "</span>" +
+              "</label>"
+            );
           })
           .join("");
-        $("rollbackSelect").disabled = false;
-        $("rollback").disabled = false;
+        updateRollbackSelection();
       }
 
       async function loadRollbackHistory() {
@@ -684,7 +797,7 @@
       async function rollbackToSelectedHistory() {
         var config = makeConfig();
         validateConfig(config, true);
-        var selectedIndex = Number($("rollbackSelect").value);
+        var selectedIndex = selectedRollbackIndex;
         var selected = rollbackItems[selectedIndex];
         if (!selected) throw new Error("请先选择要回滚的历史 JSON。");
 
@@ -820,9 +933,11 @@
         pluginMessage("clear-token");
         setStatus("已清除保存的 GitHub Token。", "success");
       };
-      $("rollbackSelect").onchange = function () {
-        $("rollback").disabled = !$("rollbackSelect").value;
-      };
+      $("rollbackList").addEventListener("change", function (event) {
+        if (event.target && event.target.name === "rollbackHistory") {
+          updateRollbackSelection();
+        }
+      });
 
       $("previewOnly").onclick = function () {
         collectTokens("preview");
