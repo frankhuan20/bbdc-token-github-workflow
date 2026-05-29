@@ -3,117 +3,624 @@
   <head>
     <meta charset="utf-8" />
     <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f8f5;
+        --surface: #ffffff;
+        --text: #171a16;
+        --muted: #687064;
+        --line: #dbe1d5;
+        --primary: #00a76a;
+        --primary-pressed: #047a3d;
+        --danger: #c9351a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
       body {
         margin: 0;
-        padding: 18px;
+        background: var(--bg);
+        color: var(--text);
         font: 13px/1.45 Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        color: #222;
-        background: #fffaf2;
       }
-      h1 {
-        margin: 0 0 8px;
-        font-size: 18px;
+
+      .shell {
+        padding: 18px;
       }
+
+      h1,
+      h2,
       p {
-        margin: 0 0 14px;
-        color: #62675f;
+        margin: 0;
       }
-      button {
-        width: 100%;
-        height: 40px;
-        margin-top: 12px;
-        border: 0;
-        border-radius: 10px;
-        background: #f06a20;
-        color: white;
-        font: inherit;
-        font-weight: 700;
-        cursor: pointer;
+
+      h1 {
+        font-size: 20px;
+        letter-spacing: 0;
       }
-      button.secondary {
-        background: #ecefe5;
-        color: #222;
+
+      h2 {
+        margin-bottom: 10px;
+        font-size: 14px;
       }
-      button:disabled {
-        opacity: 0.55;
-        cursor: not-allowed;
+
+      p {
+        color: var(--muted);
       }
+
+      .section {
+        margin-top: 14px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 6px;
+        color: #3d453a;
+        font-weight: 650;
+      }
+
+      input,
       textarea {
         width: 100%;
-        height: 310px;
-        box-sizing: border-box;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: #fff;
+        color: var(--text);
+        font: inherit;
+        outline: none;
+      }
+
+      input {
+        height: 36px;
+        padding: 0 10px;
+      }
+
+      textarea {
+        min-height: 74px;
+        padding: 10px;
+        resize: vertical;
+      }
+
+      input:focus,
+      textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(0, 167, 106, 0.14);
+      }
+
+      .field {
+        margin-top: 10px;
+      }
+
+      .hint {
+        margin-top: 6px;
+        font-size: 12px;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      button {
+        height: 40px;
+        border: 0;
+        border-radius: 7px;
+        background: #e8ede4;
+        color: var(--text);
+        font: inherit;
+        font-weight: 750;
+        cursor: pointer;
+      }
+
+      button.primary {
+        background: var(--primary);
+        color: #fff;
+      }
+
+      button.primary:active {
+        background: var(--primary-pressed);
+      }
+
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .full {
+        grid-column: 1 / -1;
+      }
+
+      .token-row {
+        display: flex;
+        gap: 10px;
+        align-items: end;
+      }
+
+      .token-row .token-field {
+        flex: 1;
+      }
+
+      .status {
+        min-height: 74px;
         margin-top: 12px;
         padding: 10px;
-        border: 1px solid #d7dccf;
-        border-radius: 10px;
-        background: #fff;
-        color: #222;
+        border-radius: 7px;
+        background: #eef3e9;
+        color: var(--muted);
+        white-space: pre-wrap;
+      }
+
+      .status.error {
+        background: #fff0ed;
+        color: var(--danger);
+      }
+
+      .status.success {
+        background: #ebf8f1;
+        color: #03683a;
+      }
+
+      .preview {
+        height: 210px;
+        margin-top: 10px;
         font: 11px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       }
-      .status {
-        margin-top: 12px;
-        padding: 10px;
-        border-radius: 10px;
-        background: #ecefe5;
-        color: #62675f;
-        white-space: pre-wrap;
+
+      .links a {
+        display: inline-block;
+        margin-right: 12px;
+        color: #056647;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .small {
+        font-size: 12px;
       }
     </style>
   </head>
   <body>
-    <h1>BBDC Token Exporter Demo</h1>
-    <p>稳定版：只负责从当前 Figma 文件读取 button / motion/button 变量，并下载 token JSON。GitHub 同步先用本地脚本完成。</p>
+    <div class="shell">
+      <h1>BBDC Token GitHub Publisher</h1>
+      <p>从当前 Figma 文件读取 Variables，生成 Design Token JSON，并一键提交到 GitHub。</p>
 
-    <button id="collect">1. 读取 Figma Variables 并生成 JSON</button>
-    <button class="secondary" id="download" disabled>2. 下载 JSON</button>
+      <div class="section">
+        <h2>GitHub 目标仓库</h2>
+        <div class="grid">
+          <div>
+            <label for="owner">Owner</label>
+            <input id="owner" value="frankhuan20" autocomplete="off" />
+          </div>
+          <div>
+            <label for="repo">Repo</label>
+            <input id="repo" value="bbdc-token-github-workflow" autocomplete="off" />
+          </div>
+          <div>
+            <label for="branch">Branch</label>
+            <input id="branch" value="main" autocomplete="off" />
+          </div>
+          <div>
+            <label for="pagesUrl">Preview URL</label>
+            <input id="pagesUrl" value="https://frankhuan20.github.io/bbdc-token-github-workflow/" autocomplete="off" />
+          </div>
+        </div>
+        <button id="saveSettings" type="button">保存仓库配置</button>
+      </div>
 
-    <textarea id="preview" readonly placeholder="导出的 JSON 会显示在这里"></textarea>
-    <div id="status" class="status">等待导出。</div>
+      <div class="section">
+        <h2>发布信息</h2>
+        <div class="field">
+          <label for="description">本次 JSON 修改描述</label>
+          <textarea id="description" placeholder="例如：主按钮改为绿色，圆角从 24 调整到 16；用于 v0.1 设计系统验证。"></textarea>
+        </div>
+
+        <div class="field token-row">
+          <div class="token-field">
+            <label for="token">GitHub Token</label>
+            <input id="token" type="password" placeholder="粘贴 fine-grained PAT，至少需要 Contents: Read and write" autocomplete="off" />
+          </div>
+          <button id="testConnection" type="button">测试连接</button>
+        </div>
+        <p class="hint">
+          Token 只在本次插件窗口中使用，不写入 Figma 文件。当前插件只写 tokens 目录，不修改 workflow 文件。
+        </p>
+      </div>
+
+      <div class="actions">
+        <button id="previewOnly" type="button">预览 JSON</button>
+        <button id="download" type="button" disabled>下载 JSON</button>
+        <button id="publish" class="primary full" type="button">一键导出并发布到 GitHub</button>
+      </div>
+
+      <div id="status" class="status">等待操作。</div>
+
+      <div class="section">
+        <h2>JSON 预览</h2>
+        <textarea id="preview" class="preview" readonly placeholder="导出的 JSON 会显示在这里"></textarea>
+        <p id="resultLinks" class="hint links"></p>
+      </div>
+    </div>
 
     <script>
       var tokenDocument = null;
+      var pendingAction = null;
+      var activeRequestId = 0;
 
       function $(id) {
         return document.getElementById(id);
       }
-      function setStatus(text) {
-        $("status").textContent = text;
-      }
-      function timestamp() {
-        return new Date().toISOString().replace(/\.\d{3}Z$/, "Z").replace(/[:.]/g, "-");
+
+      function setStatus(text, kind) {
+        var el = $("status");
+        el.textContent = text;
+        el.className = "status" + (kind ? " " + kind : "");
       }
 
-      $("collect").onclick = function () {
-        setStatus("正在读取 Figma Variables...");
-        parent.postMessage({ pluginMessage: { type: "collect-tokens" } }, "*");
+      function setBusy(isBusy) {
+        $("publish").disabled = isBusy;
+        $("previewOnly").disabled = isBusy;
+        $("testConnection").disabled = isBusy;
+        $("saveSettings").disabled = isBusy;
+      }
+
+      function fieldValue(id) {
+        return $(id).value.trim();
+      }
+
+      function pluginMessage(type, payload) {
+        parent.postMessage({ pluginMessage: Object.assign({ type: type }, payload || {}) }, "*");
+      }
+
+      function safeTimestamp(date) {
+        return date.toISOString().replace(/\.\d{3}Z$/, "Z").replace(/[:.]/g, "-");
+      }
+
+      function slugify(value) {
+        return String(value || "figma-token")
+          .trim()
+          .replace(/[^a-zA-Z0-9\u4e00-\u9fa5_-]+/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "")
+          .slice(0, 60) || "figma-token";
+      }
+
+      function jsonText(value) {
+        return JSON.stringify(value, null, 2) + "\n";
+      }
+
+      function makeConfig() {
+        return {
+          owner: fieldValue("owner"),
+          repo: fieldValue("repo"),
+          branch: fieldValue("branch") || "main",
+          pagesUrl: fieldValue("pagesUrl"),
+          token: fieldValue("token"),
+        };
+      }
+
+      function validateConfig(config, requireToken) {
+        if (!config.owner) throw new Error("请填写 GitHub owner。");
+        if (!config.repo) throw new Error("请填写 GitHub repo。");
+        if (!config.branch) throw new Error("请填写 GitHub branch。");
+        if (requireToken && !config.token) throw new Error("请粘贴 GitHub Token。");
+      }
+
+      function githubHeaders(config) {
+        return {
+          Accept: "application/vnd.github+json",
+          Authorization: "Bearer " + config.token,
+          "Content-Type": "application/json",
+          "X-GitHub-Api-Version": "2022-11-28",
+        };
+      }
+
+      async function githubRequest(config, path, options) {
+        var url = "https://api.github.com/repos/" + encodeURIComponent(config.owner) + "/" + encodeURIComponent(config.repo) + path;
+        var response = await fetch(
+          url,
+          Object.assign(
+            {
+              headers: githubHeaders(config),
+            },
+            options || {},
+          ),
+        );
+        var text = await response.text();
+        var data = null;
+        if (text) {
+          try {
+            data = JSON.parse(text);
+          } catch (error) {
+            data = { message: text };
+          }
+        }
+        if (!response.ok) {
+          var message = data && data.message ? data.message : response.statusText;
+          var error = new Error("GitHub API " + response.status + ": " + message);
+          error.status = response.status;
+          throw error;
+        }
+        return data;
+      }
+
+      function encodePath(path) {
+        return String(path || "")
+          .split("/")
+          .map(function (part) {
+            return encodeURIComponent(part);
+          })
+          .join("/");
+      }
+
+      function refPath(branch) {
+        return "heads/" + String(branch || "main").replace(/^refs\/heads\//, "").split("/").map(encodeURIComponent).join("/");
+      }
+
+      function base64ToUtf8(value) {
+        var binary = atob(String(value || "").replace(/\n/g, ""));
+        var bytes = new Uint8Array(binary.length);
+        for (var i = 0; i < binary.length; i += 1) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        return new TextDecoder().decode(bytes);
+      }
+
+      async function fetchManifest(config) {
+        try {
+          var data = await githubRequest(
+            config,
+            "/contents/" + encodePath("tokens/manifest.json") + "?ref=" + encodeURIComponent(config.branch),
+            { method: "GET" },
+          );
+          return JSON.parse(base64ToUtf8(data.content || ""));
+        } catch (error) {
+          if (error.status === 404) return { current: "tokens/current.json", history: [] };
+          throw error;
+        }
+      }
+
+      function prepareTokenFiles(document, description, manifest) {
+        var now = new Date();
+        var timestamp = safeTimestamp(now);
+        var label = slugify(description || "figma-token-update");
+        var historyFile = "tokens/history/" + timestamp + "_" + label + ".json";
+        var prepared = JSON.parse(JSON.stringify(document));
+
+        prepared.version = "figma-" + timestamp;
+        prepared.source = Object.assign({}, prepared.source || {}, {
+          exportedAt: now.toISOString(),
+          changeDescription: description || "",
+          publishedBy: "BBDC Token GitHub Publisher",
+        });
+
+        var nextManifest = Object.assign({ current: "tokens/current.json", history: [] }, manifest || {});
+        nextManifest.current = "tokens/current.json";
+        nextManifest.history = (nextManifest.history || []).concat([
+          {
+            file: historyFile,
+            label: label,
+            createdAt: now.toISOString(),
+            source: prepared.source,
+          },
+        ]);
+
+        return {
+          label: label,
+          historyFile: historyFile,
+          files: [
+            { path: "tokens/current.json", content: jsonText(prepared) },
+            { path: historyFile, content: jsonText(prepared) },
+            { path: "tokens/manifest.json", content: jsonText(nextManifest) },
+          ],
+          document: prepared,
+        };
+      }
+
+      async function createSingleCommit(config, files, message) {
+        var ref = await githubRequest(config, "/git/ref/" + refPath(config.branch), { method: "GET" });
+        var headSha = ref.object.sha;
+        var headCommit = await githubRequest(config, "/git/commits/" + encodeURIComponent(headSha), { method: "GET" });
+        var treeEntries = [];
+
+        for (var i = 0; i < files.length; i += 1) {
+          var blob = await githubRequest(config, "/git/blobs", {
+            method: "POST",
+            body: JSON.stringify({ content: files[i].content, encoding: "utf-8" }),
+          });
+          treeEntries.push({
+            path: files[i].path,
+            mode: "100644",
+            type: "blob",
+            sha: blob.sha,
+          });
+        }
+
+        var tree = await githubRequest(config, "/git/trees", {
+          method: "POST",
+          body: JSON.stringify({
+            base_tree: headCommit.tree.sha,
+            tree: treeEntries,
+          }),
+        });
+
+        var commit = await githubRequest(config, "/git/commits", {
+          method: "POST",
+          body: JSON.stringify({
+            message: message,
+            tree: tree.sha,
+            parents: [headSha],
+          }),
+        });
+
+        await githubRequest(config, "/git/refs/" + refPath(config.branch), {
+          method: "PATCH",
+          body: JSON.stringify({
+            sha: commit.sha,
+            force: false,
+          }),
+        });
+
+        return commit;
+      }
+
+      async function publishToGitHub(document) {
+        var config = makeConfig();
+        var description = fieldValue("description");
+        validateConfig(config, true);
+        if (!description) throw new Error("请填写本次 JSON 修改描述，方便回滚和追踪。");
+
+        setStatus("1/5 正在读取 GitHub manifest...");
+        var manifest = await fetchManifest(config);
+        var prepared = prepareTokenFiles(document, description, manifest);
+        tokenDocument = prepared.document;
+        $("preview").value = jsonText(prepared.document);
+        $("download").disabled = false;
+
+        setStatus("2/5 正在创建 Git blob...\n3/5 正在生成 tree...\n4/5 正在创建 commit...");
+        var commitMessage =
+          "Update design tokens: " +
+          prepared.label +
+          "\n\n" +
+          "Description: " +
+          description +
+          "\nHistory: " +
+          prepared.historyFile +
+          "\nSource: " +
+          (prepared.document.source && prepared.document.source.figmaFile ? prepared.document.source.figmaFile : "Figma");
+        var commit = await createSingleCommit(config, prepared.files, commitMessage);
+
+        pluginMessage("save-settings", {
+          settings: {
+            owner: config.owner,
+            repo: config.repo,
+            branch: config.branch,
+            pagesUrl: config.pagesUrl,
+          },
+        });
+
+        var commitUrl = "https://github.com/" + config.owner + "/" + config.repo + "/commit/" + commit.sha;
+        var actionsUrl = "https://github.com/" + config.owner + "/" + config.repo + "/actions";
+        $("resultLinks").innerHTML =
+          '<a href="' +
+          commitUrl +
+          '">查看 commit</a><a href="' +
+          actionsUrl +
+          '">查看 Actions</a>' +
+          (config.pagesUrl ? '<a href="' + config.pagesUrl + '?v=' + encodeURIComponent(prepared.document.version) + '">打开预览</a>' : "");
+        setStatus("发布成功。\ncommit: " + commit.sha + "\n等待 GitHub Actions 完成后，预览页会更新。", "success");
+      }
+
+      async function testConnection() {
+        var config = makeConfig();
+        validateConfig(config, true);
+        setBusy(true);
+        setStatus("正在测试 GitHub 连接...");
+        try {
+          var repo = await githubRequest(config, "", { method: "GET" });
+          setStatus("连接成功。\n仓库：" + repo.full_name + "\n默认分支：" + repo.default_branch, "success");
+        } catch (error) {
+          setStatus(error.message, "error");
+        } finally {
+          setBusy(false);
+        }
+      }
+
+      function collectTokens(action) {
+        pendingAction = action;
+        activeRequestId += 1;
+        setBusy(true);
+        setStatus(action === "publish" ? "正在从 Figma Variables 导出 JSON..." : "正在生成 JSON 预览...");
+        pluginMessage("collect-tokens", {
+          requestId: activeRequestId,
+          description: fieldValue("description"),
+        });
+      }
+
+      $("saveSettings").onclick = function () {
+        var config = makeConfig();
+        try {
+          validateConfig(config, false);
+          pluginMessage("save-settings", { settings: config });
+        } catch (error) {
+          setStatus(error.message, "error");
+        }
+      };
+
+      $("testConnection").onclick = testConnection;
+
+      $("previewOnly").onclick = function () {
+        collectTokens("preview");
+      };
+
+      $("publish").onclick = function () {
+        collectTokens("publish");
       };
 
       $("download").onclick = function () {
         if (!tokenDocument) return;
-        var blob = new Blob([JSON.stringify(tokenDocument, null, 2)], { type: "application/json" });
+        var blob = new Blob([jsonText(tokenDocument)], { type: "application/json" });
         var url = URL.createObjectURL(blob);
         var a = document.createElement("a");
         a.href = url;
-        a.download = "bbdc-token-export-" + timestamp() + ".json";
+        a.download = "bbdc-token-export-" + safeTimestamp(new Date()) + ".json";
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
       };
 
-      onmessage = function (event) {
+      onmessage = async function (event) {
         var message = event.data.pluginMessage;
         if (!message) return;
-        if (message.type === "tokens-collected") {
-          tokenDocument = message.document;
-          $("preview").value = JSON.stringify(tokenDocument, null, 2);
-          $("download").disabled = false;
-          setStatus("导出完成：" + Object.keys(tokenDocument.tokens || {}).length + " 个 token。");
+
+        if (message.type === "settings-loaded") {
+          var settings = message.settings || {};
+          $("owner").value = settings.owner || "frankhuan20";
+          $("repo").value = settings.repo || "bbdc-token-github-workflow";
+          $("branch").value = settings.branch || "main";
+          $("pagesUrl").value = settings.pagesUrl || "";
         }
-        if (message.type === "error") {
-          setStatus("导出失败：" + message.message);
+
+        if (message.type === "tokens-collected" && message.requestId === activeRequestId) {
+          try {
+            tokenDocument = message.document;
+            $("preview").value = jsonText(tokenDocument);
+            $("download").disabled = false;
+            if (pendingAction === "publish") {
+              await publishToGitHub(tokenDocument);
+            } else {
+              setStatus("JSON 预览生成完成，共 " + Object.keys(tokenDocument.tokens || {}).length + " 个 token。", "success");
+            }
+          } catch (error) {
+            setStatus(error.message, "error");
+          } finally {
+            pendingAction = null;
+            setBusy(false);
+          }
+        }
+
+        if (message.type === "error" && (!message.requestId || message.requestId === activeRequestId)) {
+          pendingAction = null;
+          setBusy(false);
+          setStatus(message.message, "error");
         }
       };
+
+      pluginMessage("get-settings");
     </script>
   </body>
 </html>

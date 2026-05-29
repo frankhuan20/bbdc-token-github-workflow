@@ -87,19 +87,21 @@ npm run token:rollback -- 1
 figma-plugin/manifest.json
 ```
 
-4. 在 Figma 文件里运行 `BBDC Token Exporter Demo`。
-5. 点击 `读取 Figma Variables 并生成 JSON`。
-6. 可以选择下载 JSON，或填写 GitHub 信息直接推送。
+4. 在 Figma 文件里运行 `BBDC Token GitHub Publisher`。
+5. 填写本次 JSON 修改描述。
+6. 粘贴 GitHub fine-grained token。
+7. 点击 `一键导出并发布到 GitHub`。
 
 ## GitHub 推送需要什么
 
 插件直接推送 GitHub 时，需要：
 
-- `repo`: 例如 `frankhuan20/bbdc-token-github-workflow`
-- `branch`: 通常是 `main`
+- `Owner`: 例如 `frankhuan20`
+- `Repo`: 例如 `bbdc-token-github-workflow`
+- `Branch`: 通常是 `main`
 - `GitHub token`: fine-grained token，给目标仓库 `Contents: Read and write`
 
-插件会更新这三个位置：
+插件会用 GitHub REST Git Database API 创建一个 commit，一次性更新这三个位置：
 
 ```text
 tokens/current.json
@@ -109,9 +111,11 @@ tokens/manifest.json
 
 GitHub Actions 监听这些文件变化，自动构建并发布 Pages。
 
+插件不会保存 GitHub token，只保存 owner/repo/branch/preview URL。
+
 ## 创建 GitHub 仓库
 
-本机 `gh auth` 当前需要重新登录。登录后，在本目录运行：
+如果要重新创建一套测试仓库，在本目录运行：
 
 ```bash
 gh auth login -h github.com

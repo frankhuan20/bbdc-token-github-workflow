@@ -1,8 +1,14 @@
 {
-  "name": "BBDC Token Exporter Demo",
+  "name": "BBDC Token GitHub Publisher",
   "id": "1510000000000000000",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
-  "editorType": ["figma"]
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "permissions": ["currentuser"],
+  "networkAccess": {
+    "allowedDomains": ["https://api.github.com"],
+    "reasoning": "Publish exported design token JSON to the configured GitHub repository through the GitHub REST API."
+  }
 }

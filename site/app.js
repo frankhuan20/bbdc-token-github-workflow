@@ -1,6 +1,8 @@
-const tokenResponse = await fetch("./tokens/current.json");
+const previewVersion = window.BBDC_PREVIEW_VERSION || String(Date.now());
+const cacheSuffix = `?v=${encodeURIComponent(previewVersion)}`;
+const tokenResponse = await fetch(`./tokens/current.json${cacheSuffix}`, { cache: "no-store" });
 const tokenDocument = await tokenResponse.json();
-const manifestResponse = await fetch("./tokens/manifest.json");
+const manifestResponse = await fetch(`./tokens/manifest.json${cacheSuffix}`, { cache: "no-store" });
 const manifest = await manifestResponse.json();
 
 const $ = (selector) => document.querySelector(selector);
