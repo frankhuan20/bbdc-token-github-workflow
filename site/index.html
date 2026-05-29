@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BBDC Token GitHub Workflow</title>
+    <link rel="stylesheet" href="./generated/tokens.css" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div class="eyebrow">Figma Variables -> Token JSON -> GitHub -> Web Preview</div>
+        <h1>不背单词 Design Kit 同步测试</h1>
+        <p>
+          这个页面只模拟客户端前的一步：网页直接读取
+          <code>tokens/current.json</code>。当 Figma 插件导出并同步 JSON 后，GitHub Actions 会重建这个页面，按钮视觉会跟着 token 变化。
+        </p>
+      </section>
+
+      <section class="grid">
+        <article class="panel preview-panel">
+          <div class="panel-head">
+            <div>
+              <p class="label">实际效果</p>
+              <h2>BBButton</h2>
+            </div>
+            <button class="mode-toggle" id="modeToggle" type="button">Dark</button>
+          </div>
+          <div class="button-stage">
+            <button class="bb-button">开始学习</button>
+            <button class="bb-button pressed">开始学习</button>
+            <button class="bb-button disabled" disabled>已完成</button>
+          </div>
+          <div class="spec-list" id="specList"></div>
+        </article>
+
+        <article class="panel">
+          <p class="label">当前 JSON</p>
+          <h2 id="versionTitle">Loading...</h2>
+          <p id="sourceText" class="muted"></p>
+          <pre id="jsonPreview" class="code-block"></pre>
+        </article>
+      </section>
+
+      <section class="panel">
+        <p class="label">8 步闭环</p>
+        <div class="workflow">
+          <div><b>1 设计系统改动</b><span>Figma Variables 改按钮颜色、字号、内间距。</span></div>
+          <div><b>2 发布 Figma Library</b><span>Owner 发布库版本，说明影响范围。</span></div>
+          <div><b>3 导出 token JSON</b><span>插件读取变量、模式和 code syntax。</span></div>
+          <div><b>4 转换三端代码</b><span>本 demo 转网页 CSS，也生成 Swift/Kotlin/ArkTS 样例。</span></div>
+          <div><b>5 CI 自动验收</b><span>校验 token、对比度、缺失字段。</span></div>
+          <div><b>6 发布 Design Kit</b><span>GitHub Pages 发布预览；客户端场景可发布 SDK 包。</span></div>
+          <div><b>7 客户端升级依赖</b><span>业务页面只升级 Design Kit 版本。</span></div>
+          <div><b>8 灰度与回滚</b><span>从 history 选择旧 JSON 恢复 current。</span></div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <p class="label">历史版本</p>
+          <h2>可回滚 JSON</h2>
+          <div id="historyList" class="history-list"></div>
+        </article>
+        <article class="panel">
+          <p class="label">生成物</p>
+          <h2>三端代码样例</h2>
+          <div class="generated-links">
+            <a href="./generated/tokens.css">Web tokens.css</a>
+            <a href="./generated/ios/BBDCToken.swift">iOS Swift</a>
+            <a href="./generated/android/BbdcTokens.kt">Android Kotlin</a>
+            <a href="./generated/harmony/BbdcTokens.ets">HarmonyOS ArkTS</a>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>

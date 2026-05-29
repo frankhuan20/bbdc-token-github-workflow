@@ -1,0 +1,31 @@
+{
+  "current": "tokens/current.json",
+  "history": [
+    {
+      "file": "tokens/history/2026-05-29T00-00-00Z_initial.json",
+      "label": "initial",
+      "createdAt": "2026-05-29T00:00:00.000Z",
+      "source": "seed"
+    },
+    {
+      "file": "tokens/history/2026-05-29T09-50-12Z_green-button.json",
+      "label": "green-button",
+      "createdAt": "2026-05-29T09:50:12.466Z",
+      "source": {
+        "name": "Simulated Figma Export",
+        "figmaFile": "AI自动化测试",
+        "figmaPage": "自动化测试",
+        "exportedAt": "2026-05-29T09:50:08.020Z",
+        "exportedBy": "scripts/simulate-figma-change.mjs",
+        "importedAt": "2026-05-29T09:50:12.466Z",
+        "importedBy": "scripts/import-token.mjs"
+      }
+    },
+    {
+      "file": "tokens/history/2026-05-29T00-00-00Z_initial.json",
+      "label": "rollback -> tokens/history/2026-05-29T00-00-00Z_initial.json",
+      "createdAt": "2026-05-29T09:50:32.081Z",
+      "source": "rollback"
+    }
+  ]
+}

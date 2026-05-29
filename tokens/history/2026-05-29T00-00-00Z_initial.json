@@ -1,0 +1,198 @@
+{
+  "$schema": "https://bbdc.example/design-token.schema.json",
+  "version": "0.1.0",
+  "source": {
+    "name": "BBDC Demo Tokens",
+    "figmaFile": "AI自动化测试",
+    "figmaPage": "自动化测试",
+    "exportedAt": "2026-05-29T00:00:00.000Z",
+    "exportedBy": "seed"
+  },
+  "modes": ["light", "dark"],
+  "tokens": {
+    "button.primary.bg.default": {
+      "$type": "color",
+      "$value": {
+        "light": "#f06a20",
+        "dark": "#d34810"
+      },
+      "figmaName": "button/primary/bg/default",
+      "codeSyntax": {
+        "web": "var(--bbdc-button-primary-bg-default)",
+        "android": "BbdcTokens.buttonPrimaryBgDefault",
+        "ios": "BBDCToken.buttonPrimaryBgDefault",
+        "harmony": "BbdcTokens.Button.primaryBgDefault"
+      }
+    },
+    "button.primary.bg.pressed": {
+      "$type": "color",
+      "$value": {
+        "light": "#d34810",
+        "dark": "#d34810"
+      },
+      "figmaName": "button/primary/bg/pressed",
+      "codeSyntax": {
+        "web": "var(--bbdc-button-primary-bg-pressed)",
+        "android": "BbdcTokens.buttonPrimaryBgPressed",
+        "ios": "BBDCToken.buttonPrimaryBgPressed",
+        "harmony": "BbdcTokens.Button.primaryBgPressed"
+      }
+    },
+    "button.primary.bg.disabled": {
+      "$type": "color",
+      "$value": {
+        "light": "#d5d8cf",
+        "dark": "#8c958c"
+      },
+      "figmaName": "button/primary/bg/disabled",
+      "codeSyntax": {
+        "web": "var(--bbdc-button-primary-bg-disabled)",
+        "android": "BbdcTokens.buttonPrimaryBgDisabled",
+        "ios": "BBDCToken.buttonPrimaryBgDisabled",
+        "harmony": "BbdcTokens.Button.primaryBgDisabled"
+      }
+    },
+    "button.primary.text.default": {
+      "$type": "color",
+      "$value": {
+        "light": "#ffffff",
+        "dark": "#ffffff"
+      },
+      "figmaName": "button/primary/text/default",
+      "codeSyntax": {
+        "web": "var(--bbdc-button-primary-text-default)",
+        "android": "BbdcTokens.buttonPrimaryTextDefault",
+        "ios": "BBDCToken.buttonPrimaryTextDefault",
+        "harmony": "BbdcTokens.Button.primaryTextDefault"
+      }
+    },
+    "button.primary.text.disabled": {
+      "$type": "color",
+      "$value": {
+        "light": "#6c756d",
+        "dark": "#101614"
+      },
+      "figmaName": "button/primary/text/disabled",
+      "codeSyntax": {
+        "web": "var(--bbdc-button-primary-text-disabled)",
+        "android": "BbdcTokens.buttonPrimaryTextDisabled",
+        "ios": "BBDCToken.buttonPrimaryTextDisabled",
+        "harmony": "BbdcTokens.Button.primaryTextDisabled"
+      }
+    },
+    "button.primary.padding.x": {
+      "$type": "dimension",
+      "$value": 20,
+      "unit": "px",
+      "figmaName": "button/primary/padding-x",
+      "codeSyntax": {
+        "web": "var(--bbdc-button-primary-padding-x)",
+        "android": "BbdcTokens.buttonPrimaryPaddingX",
+        "ios": "BBDCToken.buttonPrimaryPaddingX",
+        "harmony": "BbdcTokens.Button.primaryPaddingX"
+      }
+    },
+    "button.primary.padding.y": {
+      "$type": "dimension",
+      "$value": 12,
+      "unit": "px",
+      "figmaName": "button/primary/padding-y",
+      "codeSyntax": {
+        "web": "var(--bbdc-button-primary-padding-y)",
+        "android": "BbdcTokens.buttonPrimaryPaddingY",
+        "ios": "BBDCToken.buttonPrimaryPaddingY",
+        "harmony": "BbdcTokens.Button.primaryPaddingY"
+      }
+    },
+    "button.gap": {
+      "$type": "dimension",
+      "$value": 8,
+      "unit": "px",
+      "figmaName": "button/gap",
+      "codeSyntax": {
+        "web": "var(--bbdc-button-gap)",
+        "android": "BbdcTokens.buttonGap",
+        "ios": "BBDCToken.buttonGap",
+        "harmony": "BbdcTokens.Button.gap"
+      }
+    },
+    "button.radius": {
+      "$type": "dimension",
+      "$value": 14,
+      "unit": "px",
+      "figmaName": "button/radius",
+      "codeSyntax": {
+        "web": "var(--bbdc-button-radius)",
+        "android": "BbdcTokens.buttonRadius",
+        "ios": "BBDCToken.buttonRadius",
+        "harmony": "BbdcTokens.Button.radius"
+      }
+    },
+    "button.label.font.size": {
+      "$type": "dimension",
+      "$value": 16,
+      "unit": "px",
+      "figmaName": "button/label/font-size",
+      "codeSyntax": {
+        "web": "var(--bbdc-button-label-font-size)",
+        "android": "BbdcTokens.buttonLabelFontSize",
+        "ios": "BBDCToken.buttonLabelFontSize",
+        "harmony": "BbdcTokens.Button.labelFontSize"
+      }
+    },
+    "button.label.line.height": {
+      "$type": "dimension",
+      "$value": 24,
+      "unit": "px",
+      "figmaName": "button/label/line-height",
+      "codeSyntax": {
+        "web": "var(--bbdc-button-label-line-height)",
+        "android": "BbdcTokens.buttonLabelLineHeight",
+        "ios": "BBDCToken.buttonLabelLineHeight",
+        "harmony": "BbdcTokens.Button.labelLineHeight"
+      }
+    },
+    "motion.button.press.response": {
+      "$type": "duration",
+      "$value": 0.45,
+      "unit": "s",
+      "figmaName": "motion/button/press/response",
+      "codeSyntax": {
+        "web": "var(--bbdc-motion-button-press-response)",
+        "android": "BbdcTokens.motionButtonPressResponse",
+        "ios": "BBDCToken.motionButtonPressResponse",
+        "harmony": "BbdcTokens.Motion.buttonPressResponse"
+      }
+    },
+    "motion.button.press.dampingFraction": {
+      "$type": "number",
+      "$value": 0.72,
+      "figmaName": "motion/button/press/dampingFraction",
+      "codeSyntax": {
+        "web": "var(--bbdc-motion-button-press-damping-fraction)",
+        "android": "BbdcTokens.motionButtonPressDampingFraction",
+        "ios": "BBDCToken.motionButtonPressDampingFraction",
+        "harmony": "BbdcTokens.Motion.buttonPressDampingFraction"
+      }
+    }
+  },
+  "components": {
+    "BBButton": {
+      "description": "Demo button mapping generated from Figma Variables.",
+      "variants": ["Primary/Default", "Primary/Pressed", "Primary/Disabled"],
+      "uses": [
+        "button.primary.bg.default",
+        "button.primary.bg.pressed",
+        "button.primary.bg.disabled",
+        "button.primary.text.default",
+        "button.primary.text.disabled",
+        "button.primary.padding.x",
+        "button.primary.padding.y",
+        "button.radius",
+        "button.gap",
+        "button.label.font.size",
+        "button.label.line.height"
+      ]
+    }
+  }
+}
