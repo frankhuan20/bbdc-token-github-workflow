@@ -1,5 +1,6 @@
 const previewVersion = window.BBDC_PREVIEW_VERSION || String(Date.now());
 const cacheSuffix = `?v=${encodeURIComponent(previewVersion)}`;
+const notifiedTokenKey = "bbdc-preview-notified-token-fingerprint-v1";
 const $ = (selector) => document.querySelector(selector);
 
 async function requestJson(path, label) {
@@ -35,6 +36,50 @@ function updateDescription(tokenDocument, manifest) {
     latest.label ||
     "本次更新未填写描述。之后从 Figma 插件发布时，可以在“本次 JSON 修改描述”里补充。"
   );
+}
+
+function tokenFingerprint(tokenDocument) {
+  const raw = JSON.stringify({
+    version: tokenDocument.version,
+    source: tokenDocument.source,
+    tokens: tokenDocument.tokens,
+    components: tokenDocument.components,
+  });
+  let hash = 0;
+  for (let index = 0; index < raw.length; index += 1) {
+    hash = Math.imul(31, hash) + raw.charCodeAt(index) | 0;
+  }
+  return `${tokenDocument.version || "unknown"}:${(hash >>> 0).toString(16)}`;
+}
+
+function shouldNotifyTokenUpdate(tokenDocument) {
+  const fingerprint = tokenFingerprint(tokenDocument);
+  let previous = null;
+
+  try {
+    previous = window.localStorage.getItem(notifiedTokenKey);
+  } catch {
+    try {
+      previous = JSON.parse(window.name || "{}")[notifiedTokenKey] || null;
+    } catch {
+      previous = null;
+    }
+  }
+  if (previous === fingerprint) return false;
+
+  try {
+    window.localStorage.setItem(notifiedTokenKey, fingerprint);
+  } catch {
+    try {
+      const state = JSON.parse(window.name || "{}");
+      state[notifiedTokenKey] = fingerprint;
+      window.name = JSON.stringify(state);
+    } catch {
+      // If both storage paths are unavailable, the toast remains best-effort.
+    }
+  }
+
+  return true;
 }
 
 function showUpdateToast({ kind, icon, title, message, detail }) {
@@ -98,14 +143,16 @@ function renderPage(tokenDocument, manifest) {
     $("#modeToggle").textContent = next === "dark" ? "Light" : "Dark";
   });
 
-  const description = updateDescription(tokenDocument, manifest);
-  showUpdateToast({
-    kind: "success",
-    icon: "✅",
-    title: "更新成功",
-    message: description,
-    detail: `版本：${tokenDocument.version}`,
-  });
+  if (shouldNotifyTokenUpdate(tokenDocument)) {
+    const description = updateDescription(tokenDocument, manifest);
+    showUpdateToast({
+      kind: "success",
+      icon: "✅",
+      title: "更新成功",
+      message: description,
+      detail: `版本：${tokenDocument.version}`,
+    });
+  }
 }
 
 function renderFailure(error) {
