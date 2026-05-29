@@ -54,6 +54,44 @@
           "dark": "/Users/liuhuan/Downloads/BBDC Demo _ 02 Semantic 2/bbdc-v0.1-Dark.tokens.json"
         }
       }
+    },
+    {
+      "file": "tokens/history/2026-05-29T13-23-49Z_品牌色修改为-橙色.json",
+      "label": "品牌色修改为-橙色",
+      "createdAt": "2026-05-29T13:23:49.735Z",
+      "source": {
+        "name": "BBDC Figma Variables Export",
+        "figmaFile": "AI自动化测试",
+        "figmaPage": "自动化测试",
+        "figmaCollection": "BBDC Demo / 02 Semantic",
+        "modes": {
+          "light": "Light",
+          "dark": "Dark"
+        },
+        "exportedAt": "2026-05-29T13:23:49.735Z",
+        "exportedBy": "Huan",
+        "changeDescription": "品牌色修改为 橙色",
+        "publishedBy": "BBDC Token GitHub Publisher"
+      }
+    },
+    {
+      "file": "tokens/history/2026-05-29T13-28-23Z_品牌色修改为-蓝色-字体字号也修改为12.json",
+      "label": "品牌色修改为-蓝色-字体字号也修改为12",
+      "createdAt": "2026-05-29T13:28:23.647Z",
+      "source": {
+        "name": "BBDC Figma Variables Export",
+        "figmaFile": "AI自动化测试",
+        "figmaPage": "自动化测试",
+        "figmaCollection": "BBDC Demo / 02 Semantic",
+        "modes": {
+          "light": "Light",
+          "dark": "Dark"
+        },
+        "exportedAt": "2026-05-29T13:28:23.647Z",
+        "exportedBy": "Huan",
+        "changeDescription": "品牌色修改为 蓝色，字体字号也修改为12",
+        "publishedBy": "BBDC Token GitHub Publisher"
+      }
     }
   ]
 }

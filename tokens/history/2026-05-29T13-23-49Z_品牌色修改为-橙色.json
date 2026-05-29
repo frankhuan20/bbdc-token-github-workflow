@@ -1,6 +1,6 @@
 {
   "$schema": "https://bbdc.example/design-token.schema.json",
-  "version": "figma-2026-05-29T13-28-23Z",
+  "version": "figma-2026-05-29T13-23-49Z",
   "source": {
     "name": "BBDC Figma Variables Export",
     "figmaFile": "AI自动化测试",
@@ -10,9 +10,9 @@
       "light": "Light",
       "dark": "Dark"
     },
-    "exportedAt": "2026-05-29T13:28:23.647Z",
+    "exportedAt": "2026-05-29T13:23:49.735Z",
     "exportedBy": "Huan",
-    "changeDescription": "品牌色修改为 蓝色，字体字号也修改为12",
+    "changeDescription": "品牌色修改为 橙色",
     "publishedBy": "BBDC Token GitHub Publisher"
   },
   "modes": [
@@ -23,8 +23,8 @@
     "button.primary.bg.default": {
       "$type": "color",
       "$value": {
-        "light": "#006EFF",
-        "dark": "#0062E3"
+        "light": "#FF7300",
+        "dark": "#C14A00"
       },
       "figmaName": "button/primary/bg/default",
       "variableId": "VariableID:50:21",
@@ -38,8 +38,8 @@
     "button.primary.bg.pressed": {
       "$type": "color",
       "$value": {
-        "light": "#0062E3",
-        "dark": "#0062E3"
+        "light": "#C14A00",
+        "dark": "#C14A00"
       },
       "figmaName": "button/primary/bg/pressed",
       "variableId": "VariableID:50:22",
@@ -53,7 +53,7 @@
     "button.primary.bg.disabled": {
       "$type": "color",
       "$value": {
-        "light": "rgba(0, 110, 255, 0.1)",
+        "light": "rgba(255, 115, 0, 0.1)",
         "dark": "#8C958C"
       },
       "figmaName": "button/primary/bg/disabled",
@@ -83,7 +83,7 @@
     "button.primary.text.disabled": {
       "$type": "color",
       "$value": {
-        "light": "rgba(0, 110, 255, 0.3)",
+        "light": "rgba(255, 115, 0, 0.3)",
         "dark": "#141615"
       },
       "figmaName": "button/primary/text/disabled",
@@ -136,7 +136,7 @@
     },
     "button.radius": {
       "$type": "dimension",
-      "$value": 999,
+      "$value": 16,
       "figmaName": "button/radius",
       "variableId": "VariableID:50:29",
       "codeSyntax": {
@@ -162,7 +162,7 @@
     },
     "button.label.font.size": {
       "$type": "dimension",
-      "$value": 12,
+      "$value": 16,
       "figmaName": "button/label/font-size",
       "variableId": "VariableID:50:31",
       "codeSyntax": {
