@@ -40,6 +40,20 @@
           "dark": "/Users/liuhuan/Downloads/BBDC Demo _ 02 Semantic/bbdc-token-v0.0-Dark.tokens.json"
         }
       }
+    },
+    {
+      "file": "tokens/history/2026-05-29T10-55-34Z_bbdc-v0-1.json",
+      "label": "bbdc-v0.1",
+      "createdAt": "2026-05-29T10:55:34.927Z",
+      "source": {
+        "name": "BBDC Figma Light/Dark Export",
+        "exportedAt": "2026-05-29T10:55:34.927Z",
+        "exportedBy": "merge-figma-theme-json.mjs",
+        "files": {
+          "light": "/Users/liuhuan/Downloads/BBDC Demo _ 02 Semantic 2/bbdc-v0.1-Light.tokens.json",
+          "dark": "/Users/liuhuan/Downloads/BBDC Demo _ 02 Semantic 2/bbdc-v0.1-Dark.tokens.json"
+        }
+      }
     }
   ]
 }
