@@ -92,6 +92,25 @@
         "changeDescription": "品牌色修改为 蓝色，字体字号也修改为12",
         "publishedBy": "BBDC Token GitHub Publisher"
       }
+    },
+    {
+      "file": "tokens/history/2026-05-29T13-51-50Z_修改颜色为黄色.json",
+      "label": "修改颜色为黄色",
+      "createdAt": "2026-05-29T13:51:50.986Z",
+      "source": {
+        "name": "BBDC Figma Variables Export",
+        "figmaFile": "AI自动化测试",
+        "figmaPage": "自动化测试",
+        "figmaCollection": "BBDC Demo / 02 Semantic",
+        "modes": {
+          "light": "Light",
+          "dark": "Dark"
+        },
+        "exportedAt": "2026-05-29T13:51:50.986Z",
+        "exportedBy": "Huan",
+        "changeDescription": "修改颜色为黄色",
+        "publishedBy": "BBDC Token GitHub Publisher"
+      }
     }
   ]
 }
