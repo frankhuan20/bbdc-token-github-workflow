@@ -1,6 +1,7 @@
 figma.showUI(__html__, { width: 640, height: 860 });
 
 var SETTINGS_KEY = "bbdc-token-github-publisher-settings-v1";
+var TOKEN_KEY = "bbdc-token-github-publisher-token-v1";
 var TOKEN_PREFIXES = ["button/", "motion/button/"];
 
 function startsWithAnyPrefix(name) {
@@ -280,12 +281,23 @@ function publicSettings(settings) {
 
 async function loadSettings() {
   var settings = {};
+  var savedToken = "";
   try {
     settings = (await figma.clientStorage.getAsync(SETTINGS_KEY)) || {};
   } catch (error) {
     settings = {};
   }
-  figma.ui.postMessage({ type: "settings-loaded", settings: publicSettings(settings) });
+  try {
+    savedToken = (await figma.clientStorage.getAsync(TOKEN_KEY)) || "";
+  } catch (error) {
+    savedToken = "";
+  }
+  figma.ui.postMessage({
+    type: "settings-loaded",
+    settings: publicSettings(settings),
+    savedToken: savedToken,
+    hasSavedToken: Boolean(savedToken),
+  });
 }
 
 async function saveSettings(settings) {
@@ -301,6 +313,11 @@ async function saveSettings(settings) {
   await loadSettings();
 }
 
+async function saveToken(token) {
+  await figma.clientStorage.setAsync(TOKEN_KEY, token || "");
+  await loadSettings();
+}
+
 figma.ui.onmessage = async function (message) {
   try {
     if (!message || !message.type) return;
@@ -313,6 +330,18 @@ figma.ui.onmessage = async function (message) {
     if (message.type === "save-settings") {
       await saveSettings(message.settings || {});
       figma.notify("GitHub 仓库配置已保存");
+      return;
+    }
+
+    if (message.type === "save-token") {
+      await saveToken(message.token || "");
+      figma.notify(message.token ? "GitHub Token 已保存" : "GitHub Token 已清除");
+      return;
+    }
+
+    if (message.type === "clear-token") {
+      await saveToken("");
+      figma.notify("GitHub Token 已清除");
       return;
     }
 

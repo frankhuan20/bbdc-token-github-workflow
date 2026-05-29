@@ -71,7 +71,7 @@
         font-weight: 650;
       }
 
-      input,
+      input:not([type="checkbox"]),
       select,
       textarea {
         width: 100%;
@@ -83,7 +83,7 @@
         outline: none;
       }
 
-      input {
+      input:not([type="checkbox"]) {
         height: 36px;
         padding: 0 10px;
       }
@@ -99,7 +99,7 @@
         resize: vertical;
       }
 
-      input:focus,
+      input:not([type="checkbox"]):focus,
       select:focus,
       textarea:focus {
         border-color: var(--primary);
@@ -159,6 +159,36 @@
 
       .token-row .token-field {
         flex: 1;
+      }
+
+      .token-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 10px;
+      }
+
+      .check-row {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        color: var(--muted);
+        font-weight: 650;
+      }
+
+      .check-row input {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+      }
+
+      .small-button {
+        width: auto;
+        height: 32px;
+        padding: 0 12px;
+        font-size: 12px;
       }
 
       .status {
@@ -254,8 +284,15 @@
           </div>
           <button id="testConnection" type="button">测试连接</button>
         </div>
+        <div class="token-options">
+          <label class="check-row" for="rememberToken">
+            <input id="rememberToken" type="checkbox" />
+            记住 Token
+          </label>
+          <button id="clearToken" class="small-button" type="button">清除已保存 Token</button>
+        </div>
         <p class="hint">
-          Token 只在本次插件窗口中使用，不写入 Figma 文件。当前插件只写 tokens 目录，不修改 workflow 文件。
+          勾选后 Token 会保存到当前 Figma 用户的插件私有存储，不写入 Figma 文件。当前插件只写 tokens 目录，不修改 workflow 文件。
         </p>
       </div>
 
@@ -317,6 +354,8 @@
         $("testConnection").disabled = isBusy;
         $("saveSettings").disabled = isBusy;
         $("loadHistory").disabled = isBusy;
+        $("clearToken").disabled = isBusy;
+        $("rememberToken").disabled = isBusy;
         $("rollback").disabled = isBusy || $("rollbackSelect").disabled || !$("rollbackSelect").value;
       }
 
@@ -368,6 +407,14 @@
         if (!config.repo) throw new Error("请填写 GitHub repo。");
         if (!config.branch) throw new Error("请填写 GitHub branch。");
         if (requireToken && !config.token) throw new Error("请粘贴 GitHub Token。");
+      }
+
+      function syncTokenStorage(config) {
+        if ($("rememberToken").checked) {
+          pluginMessage("save-token", { token: config.token });
+        } else {
+          pluginMessage("save-token", { token: "" });
+        }
       }
 
       function githubHeaders(config) {
@@ -562,6 +609,7 @@
           "\nSource: " +
           (prepared.document.source && prepared.document.source.figmaFile ? prepared.document.source.figmaFile : "Figma");
         var commit = await createSingleCommit(config, prepared.files, commitMessage);
+        syncTokenStorage(config);
 
         pluginMessage("save-settings", {
           settings: {
@@ -698,6 +746,7 @@
             ],
             commitMessage,
           );
+          syncTokenStorage(config);
 
           pluginMessage("save-settings", {
             settings: {
@@ -732,6 +781,7 @@
         setStatus("正在测试 GitHub 连接...");
         try {
           var repo = await githubRequest(config, "", { method: "GET" });
+          syncTokenStorage(config);
           setStatus("连接成功。\n仓库：" + repo.full_name + "\n默认分支：" + repo.default_branch, "success");
         } catch (error) {
           setStatus(error.message, "error");
@@ -764,6 +814,12 @@
       $("testConnection").onclick = testConnection;
       $("loadHistory").onclick = loadRollbackHistory;
       $("rollback").onclick = rollbackToSelectedHistory;
+      $("clearToken").onclick = function () {
+        $("token").value = "";
+        $("rememberToken").checked = false;
+        pluginMessage("clear-token");
+        setStatus("已清除保存的 GitHub Token。", "success");
+      };
       $("rollbackSelect").onchange = function () {
         $("rollback").disabled = !$("rollbackSelect").value;
       };
@@ -799,6 +855,12 @@
           $("repo").value = settings.repo || "bbdc-token-github-workflow";
           $("branch").value = settings.branch || "main";
           $("pagesUrl").value = settings.pagesUrl || "";
+          if (message.savedToken) {
+            $("token").value = message.savedToken;
+            $("rememberToken").checked = true;
+          } else {
+            $("rememberToken").checked = false;
+          }
         }
 
         if (message.type === "tokens-collected" && message.requestId === activeRequestId) {

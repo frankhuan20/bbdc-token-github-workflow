@@ -42,10 +42,11 @@
    - Branch: `main`
 2. 填写「本次 JSON 修改描述」。
 3. 粘贴 GitHub Token。
-4. 点击「测试连接」确认 token 可访问仓库。
-5. 点击「一键导出并发布到 GitHub」。
-6. 打开插件返回的 Actions 链接，等待部署完成。
-7. 打开预览页检查效果。
+4. 如果希望以后自动填入，勾选「记住 Token」。
+5. 点击「测试连接」确认 token 可访问仓库。
+6. 点击「一键导出并发布到 GitHub」。
+7. 打开插件返回的 Actions 链接，等待部署完成。
+8. 打开预览页检查效果。
 
 ## 回滚步骤
 
@@ -65,6 +66,7 @@
 ## 注意
 
 - GitHub Token 只在插件窗口里使用，不会写入 Figma 文件。
-- 插件会保存 owner/repo/branch/preview URL，但不会保存 token。
+- 插件会保存 owner/repo/branch/preview URL。
+- 勾选「记住 Token」后，Token 会保存到当前 Figma 用户的插件私有存储，不会写入 Figma 文件或 GitHub。可以随时点击「清除已保存 Token」删除。
 - GitHub Pages 仍可能有短时间缓存；插件会在预览链接后追加 `?v=<token-version>`，帮助浏览器拉取新页面。
 - 如果 GitHub 返回 conflict，说明远端分支刚好被别人更新了，重新点击发布即可基于最新分支再提交。
