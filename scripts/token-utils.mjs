@@ -55,6 +55,10 @@ export function flattenTokenEntries(tokenDocument) {
 }
 
 export function hexToRgb(hex) {
+  if (String(hex).startsWith("rgb")) {
+    const values = String(hex).match(/[\d.]+/g)?.map(Number) || [];
+    if (values.length >= 3) return { r: values[0], g: values[1], b: values[2] };
+  }
   const normalized = String(hex).replace("#", "");
   if (!/^[0-9a-fA-F]{6}$/.test(normalized)) return null;
   const value = Number.parseInt(normalized, 16);

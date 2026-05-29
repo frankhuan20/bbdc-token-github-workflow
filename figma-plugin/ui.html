@@ -7,8 +7,8 @@
         margin: 0;
         padding: 18px;
         font: 13px/1.45 Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        color: var(--figma-color-text);
-        background: var(--figma-color-bg);
+        color: #222;
+        background: #fffaf2;
       }
       h1 {
         margin: 0 0 8px;
@@ -16,192 +16,102 @@
       }
       p {
         margin: 0 0 14px;
-        color: var(--figma-color-text-secondary);
-      }
-      label {
-        display: block;
-        margin: 12px 0 5px;
-        font-weight: 650;
-      }
-      input, textarea, button {
-        width: 100%;
-        box-sizing: border-box;
-        border-radius: 8px;
-        border: 1px solid var(--figma-color-border);
-        background: var(--figma-color-bg-secondary);
-        color: var(--figma-color-text);
-        font: inherit;
-      }
-      input {
-        height: 36px;
-        padding: 0 10px;
-      }
-      textarea {
-        min-height: 150px;
-        padding: 10px;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: 11px;
+        color: #62675f;
       }
       button {
-        height: 38px;
+        width: 100%;
+        height: 40px;
         margin-top: 12px;
+        border: 0;
+        border-radius: 10px;
         background: #f06a20;
         color: white;
-        border: 0;
+        font: inherit;
         font-weight: 700;
         cursor: pointer;
       }
       button.secondary {
-        background: var(--figma-color-bg-brand-tertiary);
-        color: var(--figma-color-text);
-        border: 1px solid var(--figma-color-border);
+        background: #ecefe5;
+        color: #222;
       }
-      .row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
+      button:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+      textarea {
+        width: 100%;
+        height: 310px;
+        box-sizing: border-box;
+        margin-top: 12px;
+        padding: 10px;
+        border: 1px solid #d7dccf;
+        border-radius: 10px;
+        background: #fff;
+        color: #222;
+        font: 11px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       }
       .status {
         margin-top: 12px;
         padding: 10px;
-        border-radius: 8px;
-        background: var(--figma-color-bg-secondary);
-        color: var(--figma-color-text-secondary);
+        border-radius: 10px;
+        background: #ecefe5;
+        color: #62675f;
         white-space: pre-wrap;
       }
     </style>
   </head>
   <body>
     <h1>BBDC Token Exporter Demo</h1>
-    <p>从当前 Figma 文件读取 button / motion/button 变量，生成 token JSON。你可以下载，也可以直接推送到 GitHub。</p>
+    <p>稳定版：只负责从当前 Figma 文件读取 button / motion/button 变量，并下载 token JSON。GitHub 同步先用本地脚本完成。</p>
 
     <button id="collect">1. 读取 Figma Variables 并生成 JSON</button>
     <button class="secondary" id="download" disabled>2. 下载 JSON</button>
 
-    <label>GitHub repo</label>
-    <input id="repo" placeholder="owner/repo，例如 frankhuan20/bbdc-token-github-workflow" />
-    <div class="row">
-      <div>
-        <label>Branch</label>
-        <input id="branch" value="main" />
-      </div>
-      <div>
-        <label>Label</label>
-        <input id="label" value="figma-button-change" />
-      </div>
-    </div>
-    <label>GitHub Token</label>
-    <input id="token" type="password" placeholder="Fine-grained token: Contents Read and write" />
-    <button id="push" disabled>3. 推送 tokens/current.json 到 GitHub</button>
-
-    <label>导出的 JSON 预览</label>
-    <textarea id="preview" readonly></textarea>
+    <textarea id="preview" readonly placeholder="导出的 JSON 会显示在这里"></textarea>
     <div id="status" class="status">等待导出。</div>
 
     <script>
-      let tokenDocument = null;
+      var tokenDocument = null;
 
-      const $ = (id) => document.getElementById(id);
-      const status = (text) => {
+      function $(id) {
+        return document.getElementById(id);
+      }
+      function setStatus(text) {
         $("status").textContent = text;
-      };
-      const utf8ToBase64 = (text) => btoa(unescape(encodeURIComponent(text)));
-      const timestamp = () => new Date().toISOString().replace(/\.\d{3}Z$/, "Z").replace(/[:.]/g, "-");
-      const slug = (text) => String(text || "figma-export").replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "figma-export";
+      }
+      function timestamp() {
+        return new Date().toISOString().replace(/\.\d{3}Z$/, "Z").replace(/[:.]/g, "-");
+      }
 
-      $("collect").onclick = () => {
-        status("正在读取 Figma Variables...");
+      $("collect").onclick = function () {
+        setStatus("正在读取 Figma Variables...");
         parent.postMessage({ pluginMessage: { type: "collect-tokens" } }, "*");
       };
 
-      $("download").onclick = () => {
+      $("download").onclick = function () {
         if (!tokenDocument) return;
-        const blob = new Blob([JSON.stringify(tokenDocument, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
+        var blob = new Blob([JSON.stringify(tokenDocument, null, 2)], { type: "application/json" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
         a.href = url;
-        a.download = `bbdc-token-export-${timestamp()}.json`;
+        a.download = "bbdc-token-export-" + timestamp() + ".json";
+        document.body.appendChild(a);
         a.click();
+        document.body.removeChild(a);
         URL.revokeObjectURL(url);
       };
 
-      async function fetchContent(repo, path, branch, token) {
-        const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?ref=${encodeURIComponent(branch)}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/vnd.github+json",
-          },
-        });
-        if (res.status === 404) return null;
-        if (!res.ok) throw new Error(`${path}: ${res.status} ${await res.text()}`);
-        return res.json();
-      }
-
-      async function putContent(repo, path, branch, token, content, message) {
-        const existing = await fetchContent(repo, path, branch, token);
-        const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/vnd.github+json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            branch,
-            message,
-            content: utf8ToBase64(content),
-            ...(existing?.sha ? { sha: existing.sha } : {}),
-          }),
-        });
-        if (!res.ok) throw new Error(`${path}: ${res.status} ${await res.text()}`);
-        return res.json();
-      }
-
-      $("push").onclick = async () => {
-        if (!tokenDocument) return;
-        const repo = $("repo").value.trim();
-        const branch = $("branch").value.trim() || "main";
-        const token = $("token").value.trim();
-        const label = $("label").value.trim() || "figma-export";
-        if (!repo || !token) {
-          status("请填写 repo 和 GitHub token。");
-          return;
-        }
-        const historyFile = `tokens/history/${timestamp()}_${slug(label)}.json`;
-        const content = JSON.stringify(tokenDocument, null, 2) + "\n";
-        status("正在推送 history snapshot...");
-        await putContent(repo, historyFile, branch, token, content, `tokens: add ${label} snapshot`);
-
-        status("正在更新 tokens/current.json...");
-        await putContent(repo, "tokens/current.json", branch, token, content, `tokens: update current from Figma (${label})`);
-
-        status("正在更新 tokens/manifest.json...");
-        let manifest = { current: "tokens/current.json", history: [] };
-        const existingManifest = await fetchContent(repo, "tokens/manifest.json", branch, token);
-        if (existingManifest?.content) {
-          manifest = JSON.parse(decodeURIComponent(escape(atob(existingManifest.content.replace(/\n/g, "")))));
-        }
-        manifest.current = "tokens/current.json";
-        manifest.history = [
-          ...(manifest.history || []),
-          { file: historyFile, label, createdAt: tokenDocument.source.exportedAt, source: tokenDocument.source },
-        ];
-        await putContent(repo, "tokens/manifest.json", branch, token, JSON.stringify(manifest, null, 2) + "\n", `tokens: update manifest (${label})`);
-        status("推送完成。GitHub Actions 会自动构建网页预览。");
-      };
-
-      onmessage = (event) => {
-        const message = event.data.pluginMessage;
+      onmessage = function (event) {
+        var message = event.data.pluginMessage;
         if (!message) return;
         if (message.type === "tokens-collected") {
           tokenDocument = message.document;
           $("preview").value = JSON.stringify(tokenDocument, null, 2);
           $("download").disabled = false;
-          $("push").disabled = false;
-          status(`导出完成：${Object.keys(tokenDocument.tokens || {}).length} 个 token。`);
+          setStatus("导出完成：" + Object.keys(tokenDocument.tokens || {}).length + " 个 token。");
         }
         if (message.type === "error") {
-          status(`导出失败：${message.message}`);
+          setStatus("导出失败：" + message.message);
         }
       };
     </script>

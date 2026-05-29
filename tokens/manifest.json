@@ -26,6 +26,20 @@
       "label": "rollback -> tokens/history/2026-05-29T00-00-00Z_initial.json",
       "createdAt": "2026-05-29T09:50:32.081Z",
       "source": "rollback"
+    },
+    {
+      "file": "tokens/history/2026-05-29T10-16-54Z_figma-light-dark-v0-0.json",
+      "label": "figma-light-dark-v0.0",
+      "createdAt": "2026-05-29T10:16:54.842Z",
+      "source": {
+        "name": "BBDC Figma Light/Dark Export",
+        "exportedAt": "2026-05-29T10:16:54.842Z",
+        "exportedBy": "merge-figma-theme-json.mjs",
+        "files": {
+          "light": "/Users/liuhuan/Downloads/BBDC Demo _ 02 Semantic/bbdc-token-v0.0-Light.tokens.json",
+          "dark": "/Users/liuhuan/Downloads/BBDC Demo _ 02 Semantic/bbdc-token-v0.0-Dark.tokens.json"
+        }
+      }
     }
   ]
 }

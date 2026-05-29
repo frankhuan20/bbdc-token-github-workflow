@@ -37,8 +37,8 @@ for (const [name, token] of flattenTokenEntries(document)) {
   if (token.$type === "color") {
     const modes = typeof token.$value === "object" ? Object.entries(token.$value) : [["value", token.$value]];
     for (const [mode, value] of modes) {
-      if (!/^#[0-9a-fA-F]{6}$/.test(String(value))) {
-        errors.push(`${name}.${mode} must be a 6-digit hex color`);
+      if (!/^#[0-9a-fA-F]{6}$/.test(String(value)) && !/^rgba?\([\d.,\s]+\)$/.test(String(value))) {
+        errors.push(`${name}.${mode} must be a 6-digit hex color or rgb/rgba color`);
       }
     }
   }

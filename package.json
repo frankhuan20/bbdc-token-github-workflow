@@ -8,6 +8,7 @@
     "build": "node scripts/build-site.mjs",
     "dev": "node scripts/build-site.mjs && node scripts/serve.mjs dist 8787",
     "token:import": "node scripts/import-token.mjs",
+    "token:merge-themes": "node scripts/merge-figma-theme-json.mjs",
     "token:rollback": "node scripts/rollback-token.mjs",
     "token:demo": "node scripts/simulate-figma-change.mjs"
   }
