@@ -72,6 +72,7 @@
       }
 
       input,
+      select,
       textarea {
         width: 100%;
         border: 1px solid var(--line);
@@ -87,6 +88,11 @@
         padding: 0 10px;
       }
 
+      select {
+        min-height: 132px;
+        padding: 8px;
+      }
+
       textarea {
         min-height: 74px;
         padding: 10px;
@@ -94,6 +100,7 @@
       }
 
       input:focus,
+      select:focus,
       textarea:focus {
         border-color: var(--primary);
         box-shadow: 0 0 0 3px rgba(0, 167, 106, 0.14);
@@ -191,6 +198,18 @@
       .small {
         font-size: 12px;
       }
+
+      .rollback-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .danger-action {
+        background: #fff0ed;
+        color: var(--danger);
+      }
     </style>
   </head>
   <body>
@@ -246,6 +265,26 @@
         <button id="publish" class="primary full" type="button">一键导出并发布到 GitHub</button>
       </div>
 
+      <div class="section">
+        <h2>历史回滚</h2>
+        <p>读取 GitHub 上的历史 JSON，选择一版后重新写回 <b>tokens/current.json</b>，并创建一次 rollback commit。</p>
+        <div class="field">
+          <label for="rollbackSelect">历史 JSON</label>
+          <select id="rollbackSelect" size="6" disabled>
+            <option>先点击“读取历史版本”</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="rollbackDescription">回滚说明</label>
+          <textarea id="rollbackDescription" placeholder="例如：回滚到橙色按钮版本，蓝色方案暂缓上线。"></textarea>
+        </div>
+        <div class="rollback-actions">
+          <button id="loadHistory" type="button">读取历史版本</button>
+          <button id="rollback" class="danger-action" type="button" disabled>回滚并推送到 GitHub</button>
+        </div>
+        <p class="hint">回滚不会删除历史文件，会新增一条回滚记录，方便再次回滚或审计。</p>
+      </div>
+
       <div id="status" class="status">等待操作。</div>
 
       <div class="section">
@@ -259,6 +298,8 @@
       var tokenDocument = null;
       var pendingAction = null;
       var activeRequestId = 0;
+      var rollbackItems = [];
+      var rollbackManifest = null;
 
       function $(id) {
         return document.getElementById(id);
@@ -275,6 +316,8 @@
         $("previewOnly").disabled = isBusy;
         $("testConnection").disabled = isBusy;
         $("saveSettings").disabled = isBusy;
+        $("loadHistory").disabled = isBusy;
+        $("rollback").disabled = isBusy || $("rollbackSelect").disabled || !$("rollbackSelect").value;
       }
 
       function fieldValue(id) {
@@ -300,6 +343,14 @@
 
       function jsonText(value) {
         return JSON.stringify(value, null, 2) + "\n";
+      }
+
+      function escapeHtml(value) {
+        return String(value || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
       }
 
       function makeConfig() {
@@ -391,6 +442,15 @@
           if (error.status === 404) return { current: "tokens/current.json", history: [] };
           throw error;
         }
+      }
+
+      async function fetchJsonFile(config, path) {
+        var data = await githubRequest(
+          config,
+          "/contents/" + encodePath(path) + "?ref=" + encodeURIComponent(config.branch),
+          { method: "GET" },
+        );
+        return JSON.parse(base64ToUtf8(data.content || ""));
       }
 
       function prepareTokenFiles(document, description, manifest) {
@@ -524,6 +584,147 @@
         setStatus("发布成功。\ncommit: " + commit.sha + "\n等待 GitHub Actions 完成后，预览页会更新。", "success");
       }
 
+      function historyLabel(item) {
+        var source = item && item.source ? item.source : {};
+        return source.changeDescription || item.label || item.file || "snapshot";
+      }
+
+      function renderRollbackOptions(manifest) {
+        rollbackItems = (manifest.history || [])
+          .map(function (item, index) {
+            return Object.assign({ originalIndex: index }, item);
+          })
+          .filter(function (item) {
+            return item.file && item.file.indexOf("tokens/history/") === 0;
+          })
+          .reverse();
+
+        if (!rollbackItems.length) {
+          $("rollbackSelect").innerHTML = "<option>没有可回滚的历史 JSON</option>";
+          $("rollbackSelect").disabled = true;
+          $("rollback").disabled = true;
+          return;
+        }
+
+        $("rollbackSelect").innerHTML = rollbackItems
+          .map(function (item, index) {
+            var label = historyLabel(item);
+            var date = item.createdAt ? " / " + item.createdAt : "";
+            return '<option value="' + index + '">' + escapeHtml(label + date) + "</option>";
+          })
+          .join("");
+        $("rollbackSelect").disabled = false;
+        $("rollback").disabled = false;
+      }
+
+      async function loadRollbackHistory() {
+        var config = makeConfig();
+        validateConfig(config, true);
+        setBusy(true);
+        setStatus("正在从 GitHub 读取历史版本...");
+        try {
+          rollbackManifest = await fetchManifest(config);
+          renderRollbackOptions(rollbackManifest);
+          setStatus("历史版本读取成功，共 " + rollbackItems.length + " 条。请选择一条后执行回滚。", "success");
+        } catch (error) {
+          setStatus(error.message, "error");
+        } finally {
+          setBusy(false);
+        }
+      }
+
+      async function rollbackToSelectedHistory() {
+        var config = makeConfig();
+        validateConfig(config, true);
+        var selectedIndex = Number($("rollbackSelect").value);
+        var selected = rollbackItems[selectedIndex];
+        if (!selected) throw new Error("请先选择要回滚的历史 JSON。");
+
+        var rollbackDescription =
+          fieldValue("rollbackDescription") || "回滚到：" + historyLabel(selected);
+        var rollbackLabel = "rollback-" + slugify(rollbackDescription);
+
+        setBusy(true);
+        setStatus("1/4 正在读取历史 JSON...\n" + selected.file);
+        try {
+          var manifest = await fetchManifest(config);
+          var snapshot = await fetchJsonFile(config, selected.file);
+          var now = new Date();
+          var prepared = JSON.parse(JSON.stringify(snapshot));
+          var previousVersion = prepared.version;
+
+          prepared.version = "rollback-" + safeTimestamp(now);
+          prepared.source = Object.assign({}, prepared.source || {}, {
+            rolledBackAt: now.toISOString(),
+            rolledBackFrom: selected.file,
+            rollbackDescription: rollbackDescription,
+            changeDescription: rollbackDescription,
+            previousVersion: previousVersion,
+            publishedBy: "BBDC Token GitHub Publisher",
+          });
+
+          var nextManifest = Object.assign({ current: "tokens/current.json", history: [] }, manifest || {});
+          nextManifest.current = "tokens/current.json";
+          nextManifest.history = (nextManifest.history || []).concat([
+            {
+              file: selected.file,
+              label: rollbackLabel,
+              createdAt: now.toISOString(),
+              source: prepared.source,
+            },
+          ]);
+
+          tokenDocument = prepared;
+          $("preview").value = jsonText(prepared);
+          $("download").disabled = false;
+
+          setStatus("2/4 正在写回 current.json...\n3/4 正在追加 manifest 回滚记录...\n4/4 正在创建 rollback commit...");
+          var commitMessage =
+            "Rollback design tokens: " +
+            rollbackLabel +
+            "\n\n" +
+            "Description: " +
+            rollbackDescription +
+            "\nRolled back from: " +
+            selected.file +
+            "\nPrevious version: " +
+            (previousVersion || "unknown");
+
+          var commit = await createSingleCommit(
+            config,
+            [
+              { path: "tokens/current.json", content: jsonText(prepared) },
+              { path: "tokens/manifest.json", content: jsonText(nextManifest) },
+            ],
+            commitMessage,
+          );
+
+          pluginMessage("save-settings", {
+            settings: {
+              owner: config.owner,
+              repo: config.repo,
+              branch: config.branch,
+              pagesUrl: config.pagesUrl,
+            },
+          });
+
+          var commitUrl = "https://github.com/" + config.owner + "/" + config.repo + "/commit/" + commit.sha;
+          var actionsUrl = "https://github.com/" + config.owner + "/" + config.repo + "/actions";
+          $("resultLinks").innerHTML =
+            '<a href="' +
+            commitUrl +
+            '">查看 rollback commit</a><a href="' +
+            actionsUrl +
+            '">查看 Actions</a>' +
+            (config.pagesUrl ? '<a href="' + config.pagesUrl + '?v=' + encodeURIComponent(prepared.version) + '">打开回滚预览</a>' : "");
+          setStatus("回滚成功。\ncommit: " + commit.sha + "\n等待 GitHub Actions 完成后，预览页会回到所选历史版本。", "success");
+        } catch (error) {
+          setStatus(error.message, "error");
+        } finally {
+          setBusy(false);
+        }
+      }
+
       async function testConnection() {
         var config = makeConfig();
         validateConfig(config, true);
@@ -561,6 +762,11 @@
       };
 
       $("testConnection").onclick = testConnection;
+      $("loadHistory").onclick = loadRollbackHistory;
+      $("rollback").onclick = rollbackToSelectedHistory;
+      $("rollbackSelect").onchange = function () {
+        $("rollback").disabled = !$("rollbackSelect").value;
+      };
 
       $("previewOnly").onclick = function () {
         collectTokens("preview");

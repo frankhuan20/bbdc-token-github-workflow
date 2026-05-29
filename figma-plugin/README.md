@@ -13,6 +13,7 @@
    - `tokens/current.json`
    - `tokens/history/<timestamp>_<description>.json`
    - `tokens/manifest.json`
+7. 支持读取 `tokens/manifest.json` 历史记录，把某个历史 JSON 重新写回 `tokens/current.json`，并创建 rollback commit。
 
 ## 安装
 
@@ -46,10 +47,24 @@
 6. 打开插件返回的 Actions 链接，等待部署完成。
 7. 打开预览页检查效果。
 
+## 回滚步骤
+
+1. 粘贴 GitHub Token。
+2. 点击「读取历史版本」。
+3. 在「历史 JSON」里选择要回滚到的版本。
+4. 填写「回滚说明」。
+5. 点击「回滚并推送到 GitHub」。
+6. 打开插件返回的 Actions 链接，等待部署完成。
+
+回滚会创建新的 GitHub commit：
+
+- 写回 `tokens/current.json`
+- 追加 `tokens/manifest.json` 的 rollback 记录
+- 不删除任何 `tokens/history/**` 历史文件
+
 ## 注意
 
 - GitHub Token 只在插件窗口里使用，不会写入 Figma 文件。
 - 插件会保存 owner/repo/branch/preview URL，但不会保存 token。
 - GitHub Pages 仍可能有短时间缓存；插件会在预览链接后追加 `?v=<token-version>`，帮助浏览器拉取新页面。
 - 如果 GitHub 返回 conflict，说明远端分支刚好被别人更新了，重新点击发布即可基于最新分支再提交。
-
