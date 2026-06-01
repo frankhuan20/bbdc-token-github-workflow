@@ -111,6 +111,25 @@
         "changeDescription": "修改颜色为黄色",
         "publishedBy": "BBDC Token GitHub Publisher"
       }
+    },
+    {
+      "file": "tokens/history/2026-06-01T02-16-27Z_按钮改蓝色.json",
+      "label": "按钮改蓝色",
+      "createdAt": "2026-06-01T02:16:27.774Z",
+      "source": {
+        "name": "BBDC Figma Variables Export",
+        "figmaFile": "AI自动化测试",
+        "figmaPage": "自动化测试",
+        "figmaCollection": "BBDC Demo / 02 Semantic",
+        "modes": {
+          "light": "Light",
+          "dark": "Dark"
+        },
+        "exportedAt": "2026-06-01T02:16:27.774Z",
+        "exportedBy": "Huan",
+        "changeDescription": "按钮改蓝色",
+        "publishedBy": "BBDC Token GitHub Publisher"
+      }
     }
   ]
 }
